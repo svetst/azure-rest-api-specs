@@ -3260,3 +3260,118 @@ resourceDefinition": {
 ...
 ```
 Links: [Index](#index) | [Error vs. Warning](#error-vs-warning) | [Automated Rules](#automated-rules) | [ARM](#arm-violations): [Errors](#arm-errors) or [Warnings](#arm-warnings) | [SDK](#sdk-violations): [Errors](#sdk-errors) or [Warnings](#sdk-warnings)
+
+### <a name="r4032"></a>R4032 MissingXmsErrorResponse
+
+**Category** : ARM Error
+
+**Applies to** : ARM OpenAPI(swagger) specs
+
+**Output Message** : The response code {0} is defined without a x-ms-error-response.
+
+**Description** :  If define response code 4xx or 5xx ,  x-ms-error-response:true is required.  THere is 1 exception: a HEAD operation with 404 SHOULD have x-ms-error-response:false.
+
+**CreatedAt**: February 23, 2021
+
+**LastModifiedAt**: February 23, 2021
+
+**Why this rule is important**: As some SDK may treat the 4xx or 5xx as exceptional code, if don't specified x-ms-error-response:true, the SDK will not handle the error schema correctly instead it will throw an exception.
+
+**How to fix the violation**: Add the x-ms-error-response:true for the error response.
+
+The following would be valid:
+
+```json
+```
+Links: [Index](#index) | [Error vs. Warning](#error-vs-warning) | [Automated Rules](#automated-rules) | [ARM](#arm-violations): [Errors](#arm-errors) or [Warnings](#arm-warnings) | [SDK](#sdk-violations): [Errors](#sdk-errors) or [Warnings](#sdk-warnings)
+
+### <a name="r4032"></a>R4032 UniqueModelName
+
+**Category** : ARM Error
+
+**Applies to** : ARM OpenAPI(swagger) specs
+
+**Output Message** :  The model name {0} is duplicate with {1} .
+
+**Description** :  Do not use case sensitivity to differentiate model names.
+
+**CreatedAt**: February 23, 2021
+
+**LastModifiedAt**: February 23, 2021
+
+**Why this rule is important**: In Python SDK, model names are converted to forms starting with capital. So all of "AAAA", "aaaa", "Aaaa" will be transformed to "Aaaa". So differentiating model names by their case sensitivities would break Python SDK generation.
+
+**How to fix the violation**: Rename the duplicate name 
+
+The following would be invalid:
+
+```json
+"definitions": {
+  "SKU": {
+    "type": "string",
+    "description": "SKU in request"
+  },
+  "sku": {
+    "type": "string",
+    "description": "SKU in response"
+  }
+}
+```
+
+The following would be valid:
+
+```json
+"definitions": {
+  "requestSKU": {
+    "type": "string",
+    "description": "SKU in request"
+  },
+  "responseSKU": {
+    "type": "string",
+    "description": "SKU in response"
+  }
+}
+```
+
+Links: [Index](#index) | [Error vs. Warning](#error-vs-warning) | [Automated Rules](#automated-rules) | [ARM](#arm-violations): [Errors](#arm-errors) or [Warnings](#arm-warnings) | [SDK](#sdk-violations): [Errors](#sdk-errors) or [Warnings](#sdk-warnings)
+
+### <a name="r4032"></a>R4032 AzureResourceTagsSchema
+
+**Category** : ARM Error
+
+**Applies to** : ARM OpenAPI(swagger) specs
+
+**Output Message** :  The resource "{0}" property tags schema does not meet the common type definition.
+
+**Description** :  Per  [resource-api-reference](https://github.com/Azure/azure-resource-manager-rpc/blob/master/v1.0/resource-api-reference.md#put-resource), the tags properties' value should be a string. So the object value or other value  is not supported.
+
+**CreatedAt**: February 23, 2021
+
+**LastModifiedAt**: February 23, 2021
+
+**Why this rule is important**: In terraform, it's ony accepted that the Golang type for tags is map[string]*string, but not interface{}
+
+**How to fix the violation**: refer to the [v2/types.json]()
+
+The following would be invalid:
+
+```json
+"tags": {
+  "type": "object",
+  "description": "Resource Tags"
+}
+```
+
+The following would be valid:
+
+```json
+"tags": {
+  "type": "object",
+  "additionalProperties": {
+    "type": "string"
+  },
+  "description": "Resource Tags"
+}
+```
+
+Links: [Index](#index) | [Error vs. Warning](#error-vs-warning) | [Automated Rules](#automated-rules) | [ARM](#arm-violations): [Errors](#arm-errors) or [Warnings](#arm-warnings) | [SDK](#sdk-violations): [Errors](#sdk-errors) or [Warnings](#sdk-warnings)
