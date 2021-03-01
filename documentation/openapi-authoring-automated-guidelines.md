@@ -61,7 +61,7 @@ We request OpenAPI(Swagger) spec authoring be assigned to engineers who have an
 | [R4017](#r4017) | [TopLevelResourcesListBySubscription](#r4017) | ARM OpenAPI(swagger) specs |
 | [R4018](#r4018) | [OperationsApiResponseSchema](#r4018) | ARM OpenAPI(swagger) specs |
 | [R4019](#r4019) | [GetCollectionResponseSchema](#r4019) | ARM OpenAPI(swagger) specs |
-| [R4009](#r4009) | [RequiredSystemData](#r4009) | ARM OpenAPI(swagger) specs |
+| [R4009](#r4009) | [RequiredReadOnlySystemData](#r4009) | ARM OpenAPI(swagger) specs |
 
 #### ARM Warnings
 
@@ -2448,7 +2448,7 @@ The following would be invalid:
 ```
 Links: [Index](#index) | [Error vs. Warning](#error-vs-warning) | [Automated Rules](#automated-rules) | [ARM](#arm-violations): [Errors](#arm-errors) or [Warnings](#arm-warnings) | [SDK](#sdk-violations): [Errors](#sdk-errors) or [Warnings](#sdk-warnings)
 
-### <a name="r4009" ></a>R4009 RequiredSystemData
+### <a name="r4009" ></a>R4009 RequiredReadOnlySystemData
 
 **Category** : ARM Error
 
@@ -2467,7 +2467,7 @@ The property systemData in the response of operation:'${operationId}' is not rea
 
 **LastModifiedAt**: February 26, 2021
 
-**How to fix the violation**: For each response in the GET/PUT/PATCH operation add the systemData object. 
+**How to fix the violation**: For each response in the GET/PUT/PATCH operation add a readonly systemData property. 
 It's recommended to refer to the 'systemData' defined in [v2/types.json](https://github.com/Azure/azure-rest-api-specs/blob/7dddc4bf1e402b6e6737c132ecf05b74e2b53b08/specification/common-types/resource-management/v2/types.json#L445) which is provided for fixing the error.
 ``` json
 "MyResource": {
@@ -3280,7 +3280,7 @@ Links: [Index](#index) | [Error vs. Warning](#error-vs-warning) | [Automated Rul
 
 **Output Message** : The response code {0} is defined without a x-ms-error-response.
 
-**Description** :  If defines response code 4xx or 5xx ,  x-ms-error-response:true is required. There is one exception: a HEAD operation with 404 SHOULD have x-ms-error-response:false.
+**Description** :  If defines response code 4xx or 5xx ,  x-ms-error-response:true is required. There is one exception: a HEAD operation with 404 SHOULD have x-ms-error-response:false, as 
 
 **CreatedAt**: February 23, 2021
 
@@ -3288,14 +3288,14 @@ Links: [Index](#index) | [Error vs. Warning](#error-vs-warning) | [Automated Rul
 
 **Why this rule is important**: As some SDK may treat the 4xx or 5xx as exceptional code, if don't specified x-ms-error-response:true, the SDK will not handle the error schema correctly instead it will throw an exception.
 
-**How to fix the violation**: Add the x-ms-error-response:true for the error response code.
+**How to fix the violation**: Add the x-ms-error-response:true for the error response code or remove it.
 
 The following would be valid:
 
 ```json
  "responses": {
-    "404": {
-      "description": "Not Found",
+    "400": {
+      "description": "Bad Request",
       "x-ms-error-response": true
     }
  }
@@ -3304,8 +3304,8 @@ The following would be invalid:
 
 ```json
  "responses": {
-    "404": {
-      "description": "Not Found"
+    "400": {
+      "description": "Bad Request",
     }
  }
 ```
@@ -3320,7 +3320,7 @@ Links: [Index](#index) | [Error vs. Warning](#error-vs-warning) | [Automated Rul
 
 **Output Message** :  The model name {0} is duplicated with {1} .
 
-**Description** :  Do not use case sensitivity to differentiate model names.
+**Description** :  Do not rely on case sensitivity to differentiate models.
 
 **CreatedAt**: February 23, 2021
 
@@ -3368,15 +3368,15 @@ Links: [Index](#index) | [Error vs. Warning](#error-vs-warning) | [Automated Rul
 
 **Applies to** : ARM OpenAPI(swagger) specs
 
-**Output Message** :  The resource "{0}" property tags schema is different with the common type definition.
+**Output Message** :  The property tags in the resource "{0}" does not conform to the common type definition.
 
-**Description** :  This rule is to check if the tags definition of a resource is same with the common tags definition.
+**Description** :  This rule is to check if the tags definition of a resource conforms to the common tags definition.
 
 **CreatedAt**: February 23, 2021
 
 **LastModifiedAt**: February 23, 2021
 
-**Why this rule is important**: It will block the SDK generation for terraform, as it's only accepted that the Golang type for tags is map[string]*string .
+**Why this rule is important**: It will block the SDK generation for Terraform, as it's only accepted that the Golang type for tags is map[string]*string .
 
 **How to fix the violation**: Please reference to the common tags definition in [v2/types.json](https://github.com/Azure/azure-rest-api-specs/blob/0e18f46fd2c210f85b5ec0f9dd9be664242bee82/specification/common-types/resource-management/v2/types.json#L146).
 
@@ -3414,7 +3414,7 @@ Links: [Index](#index) | [Error vs. Warning](#error-vs-warning) | [Automated Rul
 
 **Applies to** : ARM OpenAPI(swagger) specs
 
-**Output Message** :  The private endpoint model "{0}" schema is different with the common type definition.
+**Output Message** :  The private endpoint model "{0}" schema does not conform to the common type definition.
 
 **Description** :  This rule is to check if the schemas used by private endpoint conform to the common [privateLink](https://github.com/Azure/azure-rest-api-specs/blob/master/specification/common-types/resource-management/v1/privatelinks.json). The rule will check the schemas of following models and their properties:
 1. PrivateEndpointConnection
@@ -3428,7 +3428,7 @@ Links: [Index](#index) | [Error vs. Warning](#error-vs-warning) | [Automated Rul
 
 **LastModifiedAt**: February 23, 2021
 
-**Why this rule is important**: The  the schemas used by private endpoint should have same definition. 
+**Why this rule is important**: The schemas used by private endpoint should have same definition. 
 
 **How to fix the violation**: Please reference to the common private endpoint definition in [privateLink](https://github.com/Azure/azure-rest-api-specs/blob/master/specification/common-types/resource-management/v1/privatelinks.json).
 
@@ -3457,6 +3457,6 @@ GET https://management.azure.com/subscriptions/{subscriptionId}/resourceGroups/{
 
 **Why this rule is important**: To meet the private endpoint design.
 
-**How to fix the violation**: Please add the missing private endpoint API path and operations to the swagger.
+**How to fix the violation**: Please add the missing private endpoint API path and operation to the swagger.
 
 Links: [Index](#index) | [Error vs. Warning](#error-vs-warning) | [Automated Rules](#automated-rules) | [ARM](#arm-violations): [Errors](#arm-errors) or [Warnings](#arm-warnings) | [SDK](#sdk-violations): [Errors](#sdk-errors) or [Warnings](#sdk-warnings)
