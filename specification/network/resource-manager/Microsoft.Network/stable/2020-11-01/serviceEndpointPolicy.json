@@ -716,7 +716,7 @@
         "kind": {
           "readOnly": true,
           "type": "string",
-          "description": "Kind of service endpoint policy. This is metadata used for the Azue portal experience.."
+          "description": "Kind of service endpoint policy. This is metadata used for the Azure portal experience."
         }
       },
       "allOf": [
